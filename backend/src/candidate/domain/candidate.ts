@@ -19,3 +19,13 @@ export function createVote(citizenDNI: string): Vote {
     createdAt: new Date().toUTCString(),
   };
 }
+
+export function hasCitizenVoted(
+  candidates: Array<Candidate>,
+  citizenDNI: string
+): boolean {
+  const candidatesVoters = candidates.flatMap((candidate) =>
+    candidate.votes.map((vote) => vote.citizenDNI)
+  );
+  return candidatesVoters.includes(citizenDNI);
+}

@@ -1,4 +1,5 @@
 import { CitizenService } from "../../citizen/domain/citizen.service";
+import { hasCitizenVoted } from "../domain/candidate";
 import { DuplicatedVoteError } from "../domain/candidate.errors";
 import { CandidateService } from "../domain/candidate.service";
 
@@ -15,11 +16,8 @@ export function buildVoteForCandidate({
     await citizenService.findCitizenByDNI(citizenDNI);
 
     const allCandidates = await candidateService.getAllCandidates();
-    const candidatesVoters = allCandidates.flatMap((candidate) =>
-      candidate.votes.map((vote) => vote.citizenDNI)
-    );
 
-    if (candidatesVoters.includes(citizenDNI)) {
+    if (hasCitizenVoted(allCandidates, citizenDNI)) {
       throw new DuplicatedVoteError("Cannot vote twice");
     }
 
