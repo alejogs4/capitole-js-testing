@@ -1,0 +1,15 @@
+:root {
+  --medium-bp: 760px;
+  --large-bp: 1024px;
+}
+body {
+  margin: 0;
+  padding: 0;
+    box-sizing: border-box;
+  
+    font-size: 16px;
+}
+
+li {
+  list-style: none;
+}

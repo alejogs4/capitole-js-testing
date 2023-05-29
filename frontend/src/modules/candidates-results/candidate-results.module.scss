@@ -1,0 +1,11 @@
+.candidate-result {
+  margin: 1rem;
+  width: 100%;
+  max-width: var(--large-bp);
+
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}

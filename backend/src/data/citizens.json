@@ -1,0 +1,30 @@
+[
+  {
+    "user_name": "Alejandro",
+    "last_name": "García Serna",
+    "id": "2d020e5a-4ff2-492b-8e94-a19cfd640ef3",
+    "dni": "Y976231R",
+    "age": 24
+  },
+  {
+    "user_name": "Cecilia",
+    "last_name": "Puy Palacio",
+    "id": "2d020e5a-4ff2-492b-8e94-a19cfd640ef4",
+    "dni": "Y6574345R",
+    "age": 20
+  },
+  {
+    "user_name": "Carmen",
+    "last_name": "Saenz",
+    "id": "2d020e5a-4ff2-492b-8e94-a19cfd640ef6",
+    "dni": "Y6567345R1",
+    "age": 22
+  },
+  {
+    "user_name": "Laura",
+    "last_name": "Mestra Ruiz",
+    "id": "7af398e1-038a-400b-a522-b8cedbeeaf0e",
+    "dni": "Y6432345R1",
+    "age": 22
+  }
+]

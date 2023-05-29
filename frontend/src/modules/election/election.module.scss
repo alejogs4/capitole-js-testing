@@ -1,0 +1,49 @@
+.election-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  &__container {
+    width: 100%;
+    max-width: var(--medium-bp);
+  }
+
+  &__form {
+    margin-bottom: 1rem;
+  }
+
+  &__citizen-input {
+    width: 100%;
+    max-width: var(--medium-bp);
+  }
+
+  &__vote-warn,
+  &__candidates-container {
+    width: 100%;
+    max-width: var(--large-bp);
+  }
+
+  &__candidates {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  &__candidate {
+    cursor: pointer;
+    position: relative;
+  }
+
+  &__candidate--loader {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.4);
+
+    width: 100%;
+    height: 100%;
+  }
+}
