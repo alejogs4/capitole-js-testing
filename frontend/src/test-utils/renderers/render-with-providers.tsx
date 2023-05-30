@@ -7,6 +7,8 @@ import {
   buildMockElectionService,
   buildMockResultsService,
 } from "../builders/services-builder";
+import { ChakraProvider } from "@chakra-ui/react";
+import { MemoryRouter } from "react-router-dom";
 
 type RenderParameters = Parameters<typeof render>;
 
@@ -16,6 +18,11 @@ type RendererConfig = {
 };
 
 const queryClient = new QueryClient({
+  logger: {
+    error: () => {},
+    log: console.log,
+    warn: console.warn,
+  },
   defaultOptions: {
     queries: {
       retry: false,
@@ -30,14 +37,18 @@ export function renderWithProviders(
   const { electionService = {}, resultsService = {}, ...restConfig } = config;
 
   return render(
-    <QueryClientProvider client={queryClient}>
-      <ServicesProvider
-        electionService={buildMockElectionService(electionService)}
-        resultsService={buildMockResultsService(resultsService)}
-      >
-        {ui}
-      </ServicesProvider>
-    </QueryClientProvider>,
+    <MemoryRouter>
+      <ChakraProvider>
+        <QueryClientProvider client={queryClient}>
+          <ServicesProvider
+            electionService={buildMockElectionService(electionService)}
+            resultsService={buildMockResultsService(resultsService)}
+          >
+            {ui}
+          </ServicesProvider>
+        </QueryClientProvider>
+      </ChakraProvider>
+    </MemoryRouter>,
     restConfig
   );
 }

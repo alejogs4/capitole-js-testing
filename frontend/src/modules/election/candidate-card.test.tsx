@@ -108,7 +108,7 @@ describe("candidate card tests", () => {
       <CandidateCard
         candidate={candidate}
         citizen={citizen}
-        citizenAlreadyVoted={false}
+        citizenAlreadyVoted
         onSuccesfulVote={onSuccesfulVote}
       />,
       {

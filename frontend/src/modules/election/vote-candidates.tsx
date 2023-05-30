@@ -72,7 +72,7 @@ export const VoteCandidates = ({ citizen }: VoteCandidatesProps) => {
             status="warning"
           >
             <AlertIcon />
-            <AlertTitle>Citizen has already vote</AlertTitle>
+            <AlertTitle>Citizen has already voted</AlertTitle>
           </Alert>
           <footer>
             <Link
