@@ -12,126 +12,124 @@ import {
 import { NotFoundCitizenError } from "../../../citizen/domain/citizen.errors";
 import { buildCandidate } from "../../../test-utils/builders/candidate-builder";
 import { buildCitizen } from "../../../test-utils/builders/citizen-builder";
+import { CandidateService } from "../../domain/candidate.service";
+import { CitizenService } from "../../../citizen/domain/citizen.service";
+
+type TestCase = {
+  name: string;
+  mocks?: {
+    candidateService?: Partial<CandidateService>;
+    citizenService?: Partial<CitizenService>;
+  };
+  expectedStatusCode: number;
+  body?: Record<string, string>;
+};
+
+function getVotedCandidate() {
+  const candidates = buildCandidate.many(5);
+  const citizen = buildCitizen.one();
+
+  candidates[0].votes.push({
+    citizenDNI: citizen.dni,
+    createdAt: "",
+  });
+  return { candidates, citizen };
+}
+
+class UnknowError extends Error {}
 
 describe("vote candidate handler tests", () => {
-  test("Should return 201 if vote is successful", async () => {
-    const handler = voteForCandidate({
-      candidateService: buildMockCandidateService(),
-      citizenService: buildMockCitizenService(),
-    });
-
-    const mockRequest = createRequest();
-    const mockResponse = createResponse();
-
-    await handler(mockRequest, mockResponse, () => {});
-
-    expect(mockResponse.statusCode).toBe(HTTP_CODES.CREATED);
-  });
-
-  test("Should return server error if data is wrong in database", async () => {
-    const handler = voteForCandidate({
-      candidateService: buildMockCandidateService({
-        getAllCandidates: async () => {
-          throw new ShapeCandidateError();
+  const { candidates, citizen } = getVotedCandidate();
+  const testCases: Array<TestCase> = [
+    {
+      name: "Should return 201 if vote is successful",
+      expectedStatusCode: HTTP_CODES.CREATED,
+    },
+    {
+      name: "Should return server error if data is wrong in database",
+      mocks: {
+        candidateService: {
+          getAllCandidates: async () => {
+            throw new ShapeCandidateError();
+          },
         },
-      }),
-      citizenService: buildMockCitizenService(),
-    });
-
-    const mockRequest = createRequest();
-    const mockResponse = createResponse();
-
-    await handler(mockRequest, mockResponse, () => {});
-
-    expect(mockResponse.statusCode).toBe(HTTP_CODES.SERVER_ERROR);
-  });
-
-  test("Should return not found if candidate doesn't exist", async () => {
-    const handler = voteForCandidate({
-      candidateService: buildMockCandidateService({
-        async registerVote() {
-          throw new NotFoundCandidate();
+      },
+      expectedStatusCode: HTTP_CODES.SERVER_ERROR,
+    },
+    {
+      name: "Should return not found if candidate doesn't exist",
+      mocks: {
+        candidateService: {
+          async registerVote() {
+            throw new NotFoundCandidate();
+          },
         },
-      }),
-      citizenService: buildMockCitizenService(),
-    });
-
-    const mockRequest = createRequest();
-    const mockResponse = createResponse();
-
-    await handler(mockRequest, mockResponse, () => {});
-
-    expect(mockResponse.statusCode).toBe(HTTP_CODES.NOT_FOUND);
-  });
-
-  test("Should return not found if citizen doesn't exist", async () => {
-    const handler = voteForCandidate({
-      candidateService: buildMockCandidateService(),
-      citizenService: buildMockCitizenService({
-        async findCitizenByDNI() {
-          throw new NotFoundCitizenError();
+      },
+      expectedStatusCode: HTTP_CODES.NOT_FOUND,
+    },
+    {
+      name: "Should return not found if citizen doesn't exist",
+      mocks: {
+        citizenService: {
+          async findCitizenByDNI() {
+            throw new NotFoundCitizenError();
+          },
         },
-      }),
-    });
-
-    const mockRequest = createRequest();
-    const mockResponse = createResponse();
-
-    await handler(mockRequest, mockResponse, () => {});
-
-    expect(mockResponse.statusCode).toBe(HTTP_CODES.NOT_FOUND);
-  });
-
-  test("Should return bad request if citizen has voted already", async () => {
-    const candidates = buildCandidate.many(5);
-    const citizen = buildCitizen.one();
-
-    candidates[0].votes.push({
-      citizenDNI: citizen.dni,
-      createdAt: "",
-    });
-
-    const handler = voteForCandidate({
-      candidateService: buildMockCandidateService({
-        async getAllCandidates() {
-          return candidates;
+      },
+      expectedStatusCode: HTTP_CODES.NOT_FOUND,
+    },
+    {
+      name: "Should return bad request if citizen has voted already",
+      mocks: {
+        candidateService: {
+          async getAllCandidates() {
+            return candidates;
+          },
         },
-      }),
-      citizenService: buildMockCitizenService({
-        async findCitizenByDNI() {
-          return citizen;
+        citizenService: {
+          async findCitizenByDNI() {
+            return citizen;
+          },
         },
-      }),
-    });
-
-    const mockRequest = createRequest();
-    const mockResponse = createResponse();
-
-    mockRequest._addBody("candidate_dni", candidates[0].dni);
-    mockRequest._addBody("citizen_dni", citizen.dni);
-
-    await handler(mockRequest, mockResponse, () => {});
-
-    expect(mockResponse.statusCode).toBe(HTTP_CODES.BAD_REQUEST);
-  });
-
-  test("Should return server error an unknown error is thrown", async () => {
-    class UnknowError extends Error {}
-
-    const handler = voteForCandidate({
-      candidateService: buildMockCandidateService({
-        async getAllCandidates() {
-          throw new UnknowError();
+      },
+      expectedStatusCode: HTTP_CODES.BAD_REQUEST,
+      body: {
+        candidate_dni: candidates[0].dni,
+        citizen_dni: citizen.dni,
+      },
+    },
+    {
+      name: "Should return server error an unknown error is thrown",
+      mocks: {
+        candidateService: {
+          async getAllCandidates() {
+            throw new UnknowError();
+          },
         },
-      }),
-      citizenService: buildMockCitizenService(),
+      },
+      expectedStatusCode: HTTP_CODES.SERVER_ERROR,
+    },
+  ];
+
+  testCases.forEach((testCase) => {
+    test(testCase.name, async () => {
+      const handler = voteForCandidate({
+        candidateService: buildMockCandidateService(
+          testCase.mocks?.candidateService
+        ),
+        citizenService: buildMockCitizenService(testCase.mocks?.citizenService),
+      });
+
+      const mockRequest = createRequest();
+      const mockResponse = createResponse();
+
+      Object.entries(testCase.body || {}).forEach(([key, value]) => {
+        mockRequest._addBody(key, value);
+      });
+
+      await handler(mockRequest, mockResponse, () => {});
+
+      expect(mockResponse.statusCode).toBe(testCase.expectedStatusCode);
     });
-
-    const mockRequest = createRequest();
-    const mockResponse = createResponse();
-
-    await handler(mockRequest, mockResponse, () => {});
-
-    expect(mockResponse.statusCode).toBe(HTTP_CODES.SERVER_ERROR);
   });
 });
