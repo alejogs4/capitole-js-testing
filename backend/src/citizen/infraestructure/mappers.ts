@@ -22,3 +22,13 @@ export function fromFileCitizenToDomain(fileCitizen: CitizenFromFile): Citizen {
     name: fileCitizen.user_name,
   };
 }
+
+export function fromCitizenDomainToFile(citizen: Citizen): CitizenFromFile {
+  return {
+    age: citizen.age,
+    dni: citizen.dni,
+    id: citizen.id,
+    last_name: citizen.lastname,
+    user_name: citizen.name
+  };
+}

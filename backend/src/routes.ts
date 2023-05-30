@@ -8,6 +8,8 @@ import { CandidateService } from './candidate/domain/candidate.service';
 import { getCandidateVotes } from './candidate/infraestructure/handlers/get-candidate-votes.handler';
 import { voteForCandidate } from './candidate/infraestructure/handlers/vote-candidate.handler';
 import { getAllCandidatesVotes } from './candidate/infraestructure/handlers/get-all-candidates-votes.handler';
+import { AddressInfo } from 'net';
+import { Server } from 'http';
 
 type ServerDependencies = {
   port: number;
@@ -17,7 +19,7 @@ type ServerDependencies = {
   }
 }
 
-export function startServer({port, services}: ServerDependencies) {
+export function startServer({port, services}: ServerDependencies): Promise<Server> {
   const app = express()
 
   app.use(express.json({}))
@@ -33,7 +35,17 @@ export function startServer({port, services}: ServerDependencies) {
   app.get('/api/v1/candidates/:dni/votes', getCandidateVotes(services))
   app.post('/api/v1/candidates/vote', voteForCandidate(services))
 
-  return app.listen(port, () => {
-    console.log(`Running on port: ${port}`)
+  return new Promise(resolve => {
+    const server = app.listen(port, () => {
+      console.log(`Listening on port ${(server.address() as AddressInfo)?.port}`)
+      const originalClose = server.close.bind(server)
+      // @ts-ignore
+      server.close = () => {
+        return new Promise(resolveClose => {
+          originalClose(resolveClose)
+        })
+      }
+      resolve(server)
+    })
   })
 }
