@@ -20,7 +20,7 @@ type VoteCandidatesProps = {
   citizen: Citizen;
 };
 
-function citizenPreviouslyVoted(
+export function citizenPreviouslyVoted(
   citizen: Citizen,
   candidates: Array<Candidate>
 ) {
