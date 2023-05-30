@@ -72,6 +72,7 @@ export const CandidateCard = ({
       className={styles["election-form__candidate"]}
       onClick={handleVote}
       aria-disabled={status === "loading" || citizenAlreadyVoted}
+      aria-labelledby={candidate.dni}
       _disabled={{
         cursor: "auto",
         backgroundColor: "rgba(128, 128, 128, 0.4)",
@@ -93,7 +94,7 @@ export const CandidateCard = ({
             <Heading size="xs" textTransform="uppercase">
               Name
             </Heading>
-            <Text pt="2" fontSize="sm">
+            <Text id={candidate.dni} pt="2" fontSize="sm">
               {`${candidate.name} ${candidate.lastname}`}
             </Text>
           </Box>
