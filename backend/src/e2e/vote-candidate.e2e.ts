@@ -72,7 +72,7 @@ afterAll(async () => {
 })
 
 describe('vote candidate http handler e2e', () => {
-  test('Should returns 201 if seller has not voted and 400 it has voted before', async ()=> {
+  test('Should returns 201 if citizen has not voted and 400 it has voted before', async ()=> {
     const response = await api.post('/api/v1/candidates/vote', {
       citizen_dni: citizen.dni,
       candidate_dni: candidate.dni
